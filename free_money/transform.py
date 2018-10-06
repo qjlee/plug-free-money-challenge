@@ -39,4 +39,43 @@ class BalanceTransfer(Transform):
 
 @dataclass
 class FreeMoney(Transform):
-    print("Welcome to the Free Money challenge!")
+    fqdn = "tutorial.FreeMoney"
+    user: str
+    amount: int
+
+    def required_authorizations(self):
+        return {self.user}
+
+    @staticmethod
+    def required_models():
+        return {BalanceModel.fqdn}
+
+    def required_keys(self):
+        return {self.user}
+
+    @staticmethod
+    def pack(registry, obj):
+        return {
+            "user": obj.user,
+            "amount": obj.amount,
+        }
+
+    @classmethod
+    def unpack(cls, registry, payload):
+        return cls(
+            user=payload["user"],
+            amount=payload["amount"],
+        )
+
+    def verify(self, state_slice):
+        balances = state_slice[BalanceModel.fqdn]
+
+        if self.amount <= 0:
+            raise free_money.error.InvalidAmountError("amount should be greater than 0")
+        
+        if self.amount > self.sender.amount:
+            raise free_money.error.NotEnoughMoneyError("you will be broke if you send this amount")
+
+    def apply(self, state_slice):
+        balances = state_slice[BalanceModel.fqdn]
+        balances[self.user].balance += self.amount

@@ -10,6 +10,8 @@ class FreeMoneyPlugin(Plugin):
     def setup(cls, registry):
         components = [
             # Include your plugin's models/transforms/errors etc here.
+            free_money.transform.BalanceTransfer,
+            free_money.transform.FreeMoney,
             free_money.error.NotEnoughMoneyError,
             free_money.error.InvalidAmountError,
             free_money.model.BalanceModel,
