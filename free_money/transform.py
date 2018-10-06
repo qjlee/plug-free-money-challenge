@@ -69,11 +69,12 @@ class FreeMoney(Transform):
 
     def verify(self, state_slice):
         balances = state_slice[BalanceModel.fqdn]
-
+      
         if self.amount <= 0:
             raise free_money.error.InvalidAmountError("amount should be greater than 0")
         
-        if self.amount > self.sender.amount:
+        userBalance = balances[self.user].balance
+        if self.amount > userBalance:
             raise free_money.error.NotEnoughMoneyError("you will be broke if you send this amount")
 
     def apply(self, state_slice):
